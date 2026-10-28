@@ -39,11 +39,30 @@
     backdrop-filter:saturate(180%) blur(18px);
     -webkit-backdrop-filter:saturate(180%) blur(18px);
     border-bottom:1px solid var(--line);
-    transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s;
   }
-  .nav.hide{transform:translateY(-100%);opacity:0;pointer-events:none;}
   .nav__brand{display:flex;align-items:center;gap:9px;font-size:1.02rem;font-weight:700;letter-spacing:-0.045em;}
   .nav__mark{width:24px;height:24px;flex:none;}
+
+  /* 좌측 세로 눈금 — 지금 어디쯤인지 */
+  .rail{
+    position:fixed;left:clamp(14px,2.2vw,30px);top:50%;transform:translateY(-50%);
+    z-index:90;display:flex;flex-direction:column;gap:9px;
+  }
+  .rail button{
+    display:block;width:26px;height:10px;padding:0;border:0;background:none;cursor:pointer;
+    position:relative;
+  }
+  .rail button::after{
+    content:'';position:absolute;left:0;top:4px;height:2px;width:14px;
+    background:var(--ink);opacity:.22;border-radius:1px;
+    transition:width .3s cubic-bezier(.2,.8,.2,1),opacity .3s,background .4s;
+  }
+  .rail button:hover::after{opacity:.5;}
+  .rail button[aria-current="true"]::after{width:26px;opacity:1;}
+  .rail.over button::after{background:#fff;}
+  .rail.over button::after{box-shadow:0 1px 8px rgba(0,0,0,.35);}
+  @media(max-width:900px){.rail{display:none;}}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
   .nav__menu{display:flex;gap:26px;list-style:none;}
   .nav__menu a{text-decoration:none;color:var(--ink-mid);font-size:.92rem;font-weight:600;letter-spacing:-0.04em;transition:color .2s;}
   .nav__menu a:hover{color:var(--ink);}
@@ -312,6 +331,14 @@
     <li><a href="#culture">학급문화와 협력</a></li>
   </ul>
 </nav>
+
+<div class="rail" id="rail" aria-label="페이지 위치">
+  <button type="button" data-to="top" aria-current="true"><span class="sr">맨 위</span></button>
+  <button type="button" data-to="march"><span class="sr">3월에 할 일</span></button>
+  <button type="button" data-to="year"><span class="sr">1년 흐름</span></button>
+  <button type="button" data-to="class"><span class="sr">수업과 평가</span></button>
+  <button type="button" data-to="culture"><span class="sr">학급문화와 협력</span></button>
+</div>
 
 <!-- ===== 장면 1·2 — 꽉 찬 영상이 카드로 오므라든다 ===== -->
 <header class="hero" id="hero">
@@ -603,7 +630,7 @@
   <div class="wrap foot__in">
     <div>
       <b>통합학급 교사 첫걸음</b>
-      <p>2026학년도 강원특별자치도교육청 지정 통합교육 연구학교 <br>양구초등학교</p>
+      <p>양구초등학교 통합교육 연구학교 L.I.N.K.<br>강원특별자치도교육청 지정</p>
     </div>
     <div>
       <a href="https://zenith5021-hue.github.io/home/" target="_blank" rel="noopener">L.I.N.K. 수업 아카이브</a>
@@ -616,7 +643,6 @@
 <script>
 document.documentElement.classList.add('js');
 
-const nav = document.getElementById('nav');
 const hero = document.getElementById('hero');
 const frame = document.getElementById('heroFrame');
 const heroText = document.getElementById('heroText');
@@ -681,8 +707,8 @@ function heroScroll(){
   frame.style.top = frame.style.bottom = (s * 6) + 'vh';
   frame.style.borderRadius = (s * 30) + 'px';
 
-  // 꽉 찬 동안에는 메뉴를 숨긴다
-  nav.classList.toggle('hide', p < 0.86);
+  // 영상이 화면을 꽉 채우는 동안에는 눈금을 흰색으로
+  rail.classList.toggle('over', p < 0.86);
 }
 
 /* ── 1년: 스크롤에 따라 네 시기가 넘어간다 ── */
@@ -698,11 +724,30 @@ function yearScroll(){
   shots.forEach((el,k) => el.classList.toggle('on', k === i));
 }
 
+/* ── 좌측 눈금: 지금 보고 있는 구간을 짚어 준다 ── */
+const rail = document.getElementById('rail');
+const dots = [...rail.querySelectorAll('button')];
+dots.forEach(d => d.addEventListener('click', () => {
+  const to = d.dataset.to;
+  if (to === 'top') window.scrollTo({top:0, behavior:'smooth'});
+  else document.getElementById(to)?.scrollIntoView({behavior:'smooth'});
+}));
+function railScroll(){
+  const mid = window.scrollY + window.innerHeight * 0.4;
+  let at = 0;
+  dots.forEach((d,i) => {
+    if (i === 0) return;
+    const el = document.getElementById(d.dataset.to);
+    if (el && el.offsetTop <= mid) at = i;
+  });
+  dots.forEach((d,i) => d.setAttribute('aria-current', i === at ? 'true' : 'false'));
+}
+
 let ticking = false;
 function onScroll(){
   if (ticking) return;
   ticking = true;
-  requestAnimationFrame(() => { heroScroll(); yearScroll(); ticking = false; });
+  requestAnimationFrame(() => { heroScroll(); yearScroll(); railScroll(); ticking = false; });
 }
 window.addEventListener('scroll', onScroll, {passive:true});
 window.addEventListener('resize', onScroll);
