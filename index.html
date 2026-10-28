@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>통합학급 교사 첫걸음</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --ink:#0F1316;
+    --ink-mid:#5A646D;
+    --ink-soft:#9AA4AD;
+    --line:#E9EDF1;
+    --tint:#F5F7F9;
+    --blue:#2C7FF0;
+    --mint:#12B886;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard',-apple-system,system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;letter-spacing:-0.025em;
+    overflow-x:hidden;
+  }
+  img,video{display:block;max-width:100%;}
+
+  /* ===== 내비 — 꽉 찬 장면에서는 숨는다 ===== */
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px clamp(18px,5vw,56px);
+    background:rgba(255,255,255,.86);
+    backdrop-filter:saturate(180%) blur(18px);
+    -webkit-backdrop-filter:saturate(180%) blur(18px);
+    border-bottom:1px solid var(--line);
+    transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s;
+  }
+  .nav.hide{transform:translateY(-100%);opacity:0;pointer-events:none;}
+  .nav__brand{display:flex;align-items:center;gap:9px;font-size:1.02rem;font-weight:700;letter-spacing:-0.045em;}
+  .nav__mark{width:24px;height:24px;flex:none;}
+  .nav__menu{display:flex;gap:26px;list-style:none;}
+  .nav__menu a{text-decoration:none;color:var(--ink-mid);font-size:.92rem;font-weight:600;letter-spacing:-0.04em;transition:color .2s;}
+  .nav__menu a:hover{color:var(--ink);}
+  @media(max-width:900px){.nav__menu{display:none;}}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 clamp(20px,5vw,56px);}
+
+  /* ===== 장면 공통 ===== */
+  .scene{
+    min-height:100svh;display:flex;align-items:center;
+    padding:clamp(80px,12vh,140px) 0;
+  }
+  .scene--tight{min-height:auto;padding:clamp(70px,10vh,120px) 0;}
+  /* 장면의 한 마디 — 명조. 자간을 덜 좁히고 줄 간격을 넓힌다 */
+  .serif{font-family:'Hahmlet',serif;}
+  .line{
+    font-family:'Hahmlet',serif;
+    font-size:clamp(2rem,5.2vw,3.8rem);
+    font-weight:600;line-height:1.38;letter-spacing:-0.02em;
+    word-break:keep-all;
+  }
+  .line em{font-style:normal;color:var(--blue);}
+  .sub{
+    font-size:clamp(1rem,2vw,1.26rem);color:var(--ink-mid);
+    font-weight:500;line-height:1.75;max-width:600px;margin-top:22px;
+  }
+  .tag{
+    display:inline-block;font-size:.84rem;font-weight:700;color:var(--ink-soft);
+    letter-spacing:-0.02em;margin-bottom:18px;
+  }
+
+  /* ===== 1·2 히어로 — 꽉 찬 영상이 카드로 오므라든다 ===== */
+  .hero{position:relative;height:260svh;}
+  .hero__stick{position:sticky;top:0;height:100svh;overflow:hidden;}
+  .hero__frame{
+    position:absolute;inset:0;overflow:hidden;
+    will-change:transform,border-radius;
+  }
+  .hero__frame video,.hero__frame img{
+    width:100%;height:100%;object-fit:cover;
+    will-change:filter,transform;
+  }
+  .hero__shade{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(10,14,18,.30) 0%,rgba(10,14,18,.08) 42%,rgba(10,14,18,.52) 100%);
+  }
+  .hero__text{
+    position:absolute;left:0;right:0;bottom:clamp(64px,12vh,120px);
+    padding:0 clamp(24px,6vw,72px);color:#fff;
+  }
+  .hero__text .line{color:#fff;text-shadow:0 2px 30px rgba(0,0,0,.28);}
+  .hero__text .line em{color:#fff;}
+  .hero__claim{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    padding:0 clamp(24px,6vw,72px);text-align:center;color:#fff;pointer-events:none;
+  }
+  .hero__claim .line{color:#fff;text-shadow:0 2px 40px rgba(0,0,0,.45);}
+  /* 도착 무렵 화면이 밝아져 흰 글씨가 날아가므로 글자 뒤에만 옅은 그늘을 둔다 */
+  .hero__claim::before{
+    content:'';position:absolute;inset:0;z-index:-1;
+    background:radial-gradient(ellipse 72% 46% at 50% 50%,rgba(12,16,20,.46) 0%,rgba(12,16,20,.24) 55%,transparent 78%);
+  }
+
+  /* ===== 3 옆 교실 ===== */
+  .door{display:grid;grid-template-columns:1.18fr .82fr;gap:clamp(24px,5vw,56px);align-items:center;width:100%;}
+  @media(max-width:860px){.door{grid-template-columns:1fr;}}
+  .door__img{border-radius:24px;overflow:hidden;aspect-ratio:4/3;background:var(--tint);}
+  .door__img img{width:100%;height:100%;object-fit:cover;}
+
+  /* ===== 4 역할 ===== */
+  .split2{display:grid;grid-template-columns:1fr 1fr;gap:0;width:100%;border-top:1px solid var(--line);}
+  @media(max-width:760px){.split2{grid-template-columns:1fr;}}
+  .col{padding:clamp(28px,4vw,44px) clamp(20px,3vw,38px);border-bottom:1px solid var(--line);}
+  .col:first-child{border-right:1px solid var(--line);}
+  @media(max-width:760px){.col:first-child{border-right:none;}}
+  .col__h{font-size:1.1rem;font-weight:800;letter-spacing:-0.045em;margin-bottom:18px;}
+  .col--me .col__h{color:var(--ink);}
+  .col--co .col__h{color:var(--ink-soft);}
+  .col ul{list-style:none;}
+  .col li{font-size:1.02rem;color:var(--ink-mid);font-weight:500;line-height:1.5;padding:9px 0;}
+  .col li b{color:var(--ink);font-weight:700;}
+
+  /* ===== 6 질문 ===== */
+  .qs{display:grid;grid-template-columns:1fr 1fr;gap:10px;list-style:none;width:100%;}
+  @media(max-width:760px){.qs{grid-template-columns:1fr;}}
+  .qs li{
+    background:var(--tint);border-radius:14px;padding:18px 22px;
+    font-size:1.02rem;font-weight:600;color:var(--ink);line-height:1.5;
+  }
+
+  /* ===== 7 그다음 할 일 ===== */
+  .todo{list-style:none;width:100%;border-top:1px solid var(--line);}
+  .todo li{
+    display:flex;gap:18px;align-items:baseline;
+    padding:22px 2px;border-bottom:1px solid var(--line);
+  }
+  .todo .n{flex:none;font-size:.86rem;font-weight:800;color:var(--ink-soft);width:22px;}
+  .todo .t{font-size:1.1rem;font-weight:700;letter-spacing:-0.04em;flex:none;width:clamp(120px,18vw,190px);}
+  .todo .d{font-size:1rem;color:var(--ink-mid);font-weight:500;line-height:1.6;}
+  @media(max-width:700px){
+    .todo li{flex-wrap:wrap;gap:8px;}
+    .todo .t{width:auto;}
+    .todo .d{width:100%;}
+  }
+
+  /* ===== 8 1년 — 제목 고정, 사계절 넘김 ===== */
+  .year{position:relative;height:420svh;}
+  .year__stick{
+    position:sticky;top:0;height:100svh;display:flex;align-items:center;
+  }
+  .year__in{
+    display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);
+    gap:clamp(24px,5vw,70px);align-items:center;width:100%;
+    max-width:1080px;margin:0 auto;padding:0 clamp(20px,5vw,56px);
+  }
+  @media(max-width:860px){.year__in{grid-template-columns:1fr;gap:26px;}}
+  .year__h{
+    font-family:'Hahmlet',serif;
+    font-size:clamp(1.8rem,4.1vw,2.9rem);font-weight:600;
+    line-height:1.4;letter-spacing:-0.02em;margin-bottom:30px;word-break:keep-all;
+  }
+  .steps{list-style:none;}
+  .steps li{
+    padding:14px 0;border-top:1px solid var(--line);
+    transition:opacity .4s ease;
+  }
+  .steps li:last-child{border-bottom:1px solid var(--line);}
+  .steps .when{
+    font-size:1.12rem;font-weight:800;letter-spacing:-0.045em;color:var(--ink-soft);
+    transition:color .4s ease;
+  }
+  .steps .body{
+    max-height:0;overflow:hidden;opacity:0;
+    transition:max-height .5s cubic-bezier(.2,.8,.2,1),opacity .4s ease,margin .5s;
+  }
+  .steps li.on .when{color:var(--ink);}
+  .steps li.on .body{max-height:200px;opacity:1;margin-top:10px;}
+  .steps .body p{font-size:.98rem;color:var(--ink-mid);font-weight:500;line-height:1.65;}
+  .year__media{position:relative;border-radius:26px;overflow:hidden;aspect-ratio:16/11;background:var(--tint);}
+  .year__media img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    opacity:0;transform:scale(1.04);
+    transition:opacity .7s ease,transform .9s cubic-bezier(.2,.8,.2,1);
+  }
+  .year__media img.on{opacity:1;transform:scale(1);}
+
+  /* ===== 9·10·11 찾아보는 구간 ===== */
+  .band{border-top:1px solid var(--line);}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:clamp(22px,4vw,54px);width:100%;align-items:start;}
+  @media(max-width:860px){.duo{grid-template-columns:1fr;}}
+  .shot{border-radius:22px;overflow:hidden;aspect-ratio:16/10;background:var(--tint);margin-bottom:22px;}
+  .shot img{width:100%;height:100%;object-fit:cover;}
+  .h3{font-size:1.32rem;font-weight:800;letter-spacing:-0.045em;margin-bottom:12px;}
+  .p{font-size:1rem;color:var(--ink-mid);font-weight:500;line-height:1.72;}
+  .p b{color:var(--ink);font-weight:700;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;}
+  .chips span{background:var(--tint);border-radius:11px;padding:9px 14px;font-size:.93rem;font-weight:600;}
+  .chips span i{font-style:normal;color:var(--ink-soft);margin-right:6px;}
+  .law{border-left:2px solid var(--ink);padding-left:16px;margin:18px 0;font-size:.97rem;color:var(--ink-mid);line-height:1.65;}
+  .law b{color:var(--ink);font-weight:700;}
+  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px;}
+  .grid4 div{background:var(--tint);border-radius:12px;padding:14px 16px;}
+  .grid4 b{display:block;font-size:.95rem;font-weight:700;margin-bottom:2px;}
+  .grid4 small{font-size:.87rem;color:var(--ink-soft);}
+  .tipl{list-style:none;}
+  .tipl li{padding:11px 0;font-size:1rem;color:var(--ink-mid);font-weight:500;line-height:1.6;border-bottom:1px solid var(--line);}
+  .tipl li b{color:var(--ink);font-weight:700;}
+  .days{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;}
+  .days span{background:var(--tint);border-radius:9px;padding:7px 12px;font-size:.88rem;font-weight:600;color:var(--ink-mid);}
+  .days span b{color:var(--ink);font-weight:800;margin-right:5px;}
+  .case{border-left:3px solid var(--mint);padding:4px 0 4px 18px;margin-top:26px;}
+  .case__tag{font-size:.8rem;font-weight:800;color:#0E8F6B;display:block;margin-bottom:7px;}
+  .case__t{font-size:1.06rem;font-weight:700;letter-spacing:-0.04em;margin-bottom:7px;}
+  .case__p{font-size:.97rem;color:var(--ink-mid);font-weight:500;line-height:1.7;}
+  .case__p b{color:var(--ink);font-weight:700;}
+  .case__go{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;}
+  .case a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:1.5px solid var(--line);}
+  .case a:hover{border-bottom-color:var(--ink);}
+  .blank{display:inline-block;background:#FFF4D6;color:#8A5B00;border-radius:6px;padding:1px 8px;font-size:.9rem;font-weight:700;}
+  .intro{margin-top:26px;border-top:1px solid var(--line);padding-top:22px;}
+  .intro__t{font-size:1.06rem;font-weight:800;letter-spacing:-0.04em;margin-bottom:4px;}
+  .intro__s{font-size:.93rem;color:var(--ink-soft);line-height:1.6;margin-bottom:14px;}
+  .intro ol{list-style:none;counter-reset:n;}
+  .intro li{counter-increment:n;position:relative;padding:10px 0 10px 32px;
+    font-size:.97rem;color:var(--ink-mid);font-weight:500;line-height:1.65;word-break:keep-all;}
+  .intro li+li{border-top:1px solid rgba(0,0,0,.05);}
+  .intro li::before{
+    content:counter(n);position:absolute;left:0;top:11px;
+    width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;
+    font-size:.72rem;font-weight:800;display:grid;place-items:center;
+  }
+  .intro li b{color:var(--ink);font-weight:700;}
+  .gw{margin-top:20px;border:1px solid var(--line);border-radius:18px;padding:22px clamp(18px,2.4vw,26px) 20px;background:var(--tint);}
+  .gw__h{display:flex;align-items:baseline;gap:9px;margin-bottom:4px;}
+  .gw__h b{font-size:1.02rem;font-weight:800;letter-spacing:-0.035em;}
+  .gw__h i{font-style:normal;font-size:.76rem;font-weight:700;color:#fff;background:var(--ink);
+    padding:2px 8px;border-radius:6px;letter-spacing:-0.02em;}
+  .gw__note{font-size:.88rem;color:var(--ink-soft);line-height:1.6;margin-bottom:16px;}
+  .gw__lb{font-size:.78rem;font-weight:800;color:var(--ink-soft);letter-spacing:.02em;
+    margin:18px 0 8px;padding-top:14px;border-top:1px solid var(--line);}
+  .gw__lb:first-of-type{margin-top:0;padding-top:0;border-top:0;}
+  .gw__list{display:grid;gap:1px 22px;}
+  .gw__wide{grid-template-columns:minmax(0,1fr);}
+  .gw__cols{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .gw__cols span{white-space:nowrap;}
+  .gw__list a{
+    display:flex;align-items:baseline;gap:10px;padding:7px 0;min-width:0;
+    color:var(--ink);text-decoration:none;border-bottom:1px solid rgba(0,0,0,.045);
+  }
+  .gw__list a:last-child{border-bottom:0;}
+  .gw__list a:hover span{color:var(--blue);}
+  .gw__list span{font-size:.9rem;font-weight:600;letter-spacing:-0.03em;
+    word-break:keep-all;min-width:0;}
+  .gw__wide span{overflow-wrap:anywhere;}
+  .gw__list em{margin-left:auto;font-style:normal;font-size:.88rem;font-weight:600;
+    color:var(--ink-mid);font-variant-numeric:tabular-nums;white-space:nowrap;}
+  @media (max-width:560px){ .gw__cols{grid-template-columns:minmax(0,1fr);} }
+
+  /* ===== 12 닫는 장면 ===== */
+  .close{
+    min-height:100svh;display:flex;align-items:center;justify-content:center;
+    text-align:center;background:var(--ink);color:#fff;padding:0 clamp(24px,6vw,72px);
+  }
+  .close .line{color:#fff;}
+  .close .sub{color:#9AA7B2;margin:22px auto 0;}
+  .stamp{
+    font-family:'Hahmlet',serif;
+    margin-top:clamp(46px,8vh,80px);font-size:clamp(2rem,6.4vw,4.9rem);
+    font-weight:600;letter-spacing:-0.02em;color:rgba(255,255,255,.11);line-height:1.15;
+    word-break:keep-all;
+  }
+  .foot{background:var(--ink);color:#78838D;padding:0 0 58px;}
+  .foot__in{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;
+    border-top:1px solid rgba(255,255,255,.08);padding-top:34px;}
+  .foot p{font-size:.9rem;line-height:1.7;}
+  .foot b{color:#fff;font-size:1rem;font-weight:800;display:block;margin-bottom:8px;letter-spacing:-0.04em;}
+  .foot a{color:#9FB6D4;text-decoration:none;display:block;font-size:.9rem;padding:3px 0;}
+
+  /* ===== 등장 모션 ===== */
+  .js .rv{opacity:0;transform:translateY(20px);}
+  .rv.in{opacity:1;transform:none;
+    transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1);}
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;}
+    .js .rv{opacity:1!important;transform:none!important;}
+    .steps .body{max-height:none!important;opacity:1!important;}
+    .year__media img{opacity:1!important;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav__brand">
+    <svg class="nav__mark" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="9" fill="#0F1316"/>
+      <circle cx="12.5" cy="16" r="4.6" fill="#fff"/>
+      <circle cx="20.5" cy="16" r="4.6" fill="#fff" fill-opacity=".55"/>
+    </svg>
+    통합학급 교사 첫걸음
+  </div>
+  <ul class="nav__menu">
+    <li><a href="#march">3월에 할 일</a></li>
+    <li><a href="#year">1년 흐름</a></li>
+    <li><a href="#class">수업과 평가</a></li>
+    <li><a href="#culture">학급문화와 협력</a></li>
+  </ul>
+</nav>
+
+<!-- ===== 장면 1·2 — 꽉 찬 영상이 카드로 오므라든다 ===== -->
+<header class="hero" id="hero">
+  <div class="hero__stick">
+    <div class="hero__frame" id="heroFrame">
+      <video id="heroVid" muted playsinline preload="auto" poster="assets/hero-walk-poster.jpg">
+        <source src="assets/hero-walk.mp4" type="video/mp4">
+      </video>
+      <div class="hero__shade" id="heroShade"></div>
+      <div class="hero__text" id="heroText">
+        <p class="line">막막한 건 당연합니다</p>
+      </div>
+      <div class="hero__claim" id="heroClaim" style="opacity:0">
+        <p class="line">그런데<br>혼자 하는 일이 아닙니다</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== 장면 3 — 옆 교실 ===== -->
+<section class="scene">
+  <div class="wrap door">
+    <div class="rv">
+      <span class="tag">증거 하나</span>
+      <p class="line">가장 잘 아는 사람이<br>옆 교실에 있습니다</p>
+      <p class="sub">우리 반 아이가 무엇을 할 수 있고 어디에서 막히는지, 작년에 무엇이 도움이 되었는지. 그 정보를 이미 가진 사람이 같은 건물에 있습니다.</p>
+    </div>
+    <div class="door__img rv"><img src="assets/support-office.webp" alt="교무실 책상"></div>
+  </div>
+</section>
+
+<!-- ===== 장면 4 — 역할 ===== -->
+<section class="scene scene--tight" id="roles">
+  <div class="wrap">
+    <div class="rv" style="margin-bottom:38px">
+      <p class="line">혼자 다 하는 게 아닙니다</p>
+      <p class="sub">특수학급에서 일부 시간을 보내더라도 원소속은 통합학급입니다. 다만 담임이 맡는 일과 함께 정하는 일이 나뉘어 있습니다.</p>
+    </div>
+    <div class="split2 rv">
+      <div class="col col--me">
+        <p class="col__h">담임이 합니다</p>
+        <ul>
+          <li><b>출결과 학적 관리</b></li>
+          <li><b>평가 기록과 나이스 입력</b></li>
+          <li>학급 안에서의 생활지도</li>
+          <li>개별화교육지원팀 참여</li>
+        </ul>
+      </div>
+      <div class="col col--co">
+        <p class="col__h">함께 정합니다</p>
+        <ul>
+          <li><b>개별화교육계획(IEP)</b> — 특수교사 주관</li>
+          <li>수업·평가 참여 방법</li>
+          <li>학교 행사 참여 지원</li>
+          <li>학교생활 전반의 지원</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 장면 5 — 3월 ===== -->
+<section class="scene" id="march">
+  <div class="wrap rv">
+    <span class="tag">3월, 무엇부터 할까요</span>
+    <p class="line">가장 먼저<br>옆 교실로 갑니다</p>
+    <p class="sub">혼자 알아내려 하지 않아도 됩니다. 3월에 할 일 중 첫 번째는 특수교사를 찾아가는 것입니다.</p>
+  </div>
+</section>
+
+<!-- ===== 장면 6 — 질문 ===== -->
+<section class="scene scene--tight">
+  <div class="wrap">
+    <div class="rv" style="margin-bottom:30px">
+      <p class="line" style="font-size:clamp(1.7rem,3.6vw,2.5rem)">이렇게 물어보세요</p>
+      <p class="sub">무엇을 물어야 할지 모르겠다면, 이 여섯 가지로 시작하면 됩니다.</p>
+    </div>
+    <ul class="qs rv">
+      <li>우리 반 아이는 어떤 지원이 필요한가요?</li>
+      <li>특수학급에는 몇 교시에 가나요?</li>
+      <li>수업 중에 제가 꼭 해야 할 일이 있나요?</li>
+      <li>힘들어할 때 어떻게 하면 좋을까요?</li>
+      <li>평가는 어떤 방식으로 하게 되나요?</li>
+      <li>급한 일이 생기면 어떻게 연락드릴까요?</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 장면 7 — 그다음 할 일 ===== -->
+<section class="scene scene--tight">
+  <div class="wrap">
+    <div class="rv" style="margin-bottom:30px">
+      <p class="line" style="font-size:clamp(1.7rem,3.6vw,2.5rem)">그다음에 할 일</p>
+    </div>
+    <ul class="todo rv">
+      <li><span class="n">01</span><span class="t">교실 둘러보기</span><span class="d">칠판이 잘 보이는 자리인지, 드나드는 길이 막히지 않는지. 자리 하나 옮기는 일로 끝나는 경우가 많습니다.</span></li>
+      <li><span class="n">02</span><span class="t">적응기간</span><span class="d">하루 일과를 그림이나 사진으로 붙여 두면 아이가 다음 순서를 예측할 수 있습니다.</span></li>
+      <li><span class="n">03</span><span class="t">아이 보기</span><span class="d">무엇을 못 하는지보다 무엇을 할 수 있고 무엇을 좋아하는지를 먼저 찾습니다.</span></li>
+      <li><span class="n">04</span><span class="t">개별화교육계획</span><span class="d">매 학기 시작일로부터 30일 이내에 수립됩니다. 통합학급에서 관찰한 모습을 전하는 것이 담임의 역할입니다.</span></li>
+      <li><span class="n">05</span><span class="t">학부모 첫 상담</span><span class="d">평가하거나 진단하는 자리가 아니라 정보를 얻는 자리입니다.</span></li>
+    </ul>
+    <div class="case rv">
+      <span class="case__tag">본교 사례</span>
+      <p class="case__t">학습자·상황 분석 조사지</p>
+      <p class="case__p">양구초등학교에서는 학기 초에 담임이 작성하는 <b>학습자·상황 분석 조사지</b>를 함께 씁니다. 교실에서 관찰한 대로 적어 두면 개별화교육계획과 평가 방법을 정할 때 그대로 쓰입니다.
+      <a href="https://zenith5021-hue.github.io/home/forms.html" target="_blank" rel="noopener">양식 보러 가기</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 장면 8 — 1년, 제목 고정 + 사계절 넘김 ===== -->
+<section class="year" id="year">
+  <div class="year__stick">
+    <div class="year__in">
+      <div>
+        <span class="tag">1년은 이렇게 흘러갑니다</span>
+        <p class="year__h">언제 무엇이<br>기다리고 있는지</p>
+        <ul class="steps" id="steps">
+          <li class="on">
+            <p class="when">3월 — 시작</p>
+            <div class="body"><p>특수교사와 첫 협의 · 교실 환경 점검 · 적응기간 운영 · 1학기 IEP 수립과 승인</p></div>
+          </li>
+          <li>
+            <p class="when">4~7월 — 학기 중</p>
+            <div class="body"><p>장애공감 교육 · 수업과 평가 참여 방안 협의 · 학교 행사 참여 지원 협의 · 학부모 상담</p></div>
+          </li>
+          <li>
+            <p class="when">8~9월 — 학기말과 2학기</p>
+            <div class="body"><p>1학기 평가 결과 입력 · 평가서 배부 · 2학기 IEP 수립</p></div>
+          </li>
+          <li>
+            <p class="when">12~2월 — 마무리</p>
+            <div class="body"><p>2학기 평가 결과 입력 · 한 해 기록 정리 · 다음 학년 인계</p></div>
+          </li>
+        </ul>
+      </div>
+      <div class="year__media" id="yearMedia">
+        <img class="on" src="assets/season-spring.webp" alt="3월 교실">
+        <img src="assets/season-summer.webp" alt="여름 운동장">
+        <img src="assets/season-autumn.webp" alt="가을 창가">
+        <img src="assets/season-winter.webp" alt="겨울 교실">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 장면 9·10 — 수업과 평가 ===== -->
+<section class="scene scene--tight band" id="class">
+  <div class="wrap">
+    <div class="rv" style="margin-bottom:36px">
+      <span class="tag">수업과 평가, 이렇게 합니다</span>
+      <p class="line">같은 활동,<br>다른 참여</p>
+      <p class="sub">다른 수업을 따로 준비하는 것이 아닙니다. 같은 활동에 참여하는 방법을 하나 더 열어 두는 것입니다. 그 방법은 특수교사와 함께 정합니다.</p>
+    </div>
+    <div class="duo">
+      <div class="rv">
+        <div class="shot"><img src="assets/lesson-desk.webp" alt="책상 위 학습 자료"></div>
+        <p class="h3">수업에서</p>
+        <p class="p">글로 쓰기 어려우면 말로 하거나 그림으로 표현하게 하고, 문제 수가 많으면 핵심 문항만 고르게 합니다. 모둠 안에서 맡을 역할을 하나 만들어 주는 것도 방법입니다.</p>
+        <div class="chips">
+          <span><i>표상</i>어떻게 보여줄까</span>
+          <span><i>표현</i>어떻게 나타낼까</span>
+          <span><i>참여</i>어떻게 끌어들일까</span>
+        </div>
+      </div>
+      <div class="rv">
+        <p class="h3">평가에서</p>
+        <p class="law"><b>평가조정은 배려가 아니라 권리입니다.</b><br>「장애인차별금지 및 권리구제 등에 관한 법률」 제14조는 교육기관의 정당한 편의 제공을 의무로 정하고 있습니다.</p>
+        <div class="grid4">
+          <div><b>시간</b><small>시간 연장, 중간 휴식</small></div>
+          <div><b>환경</b><small>별도 장소, 자리 조정</small></div>
+          <div><b>방법</b><small>대독·대필, 구술 응답</small></div>
+          <div><b>도구</b><small>확대 문항지, 보조기기</small></div>
+        </div>
+        <p class="p" style="margin-top:18px">조정만으로 참여가 어려우면 대안평가를 검토합니다. 평가 결과를 나이스에 입력하고 평가서를 배부하는 일은 담임의 몫입니다.</p>
+        <div class="case">
+          <span class="case__tag">본교 사례</span>
+          <p class="case__t">실제 수업과 평가 자료</p>
+          <p class="case__p">2년간 진행한 <b>UDL 수업 사례</b>와 대안평가에 필요한 <b>서식 일체</b>를 아카이브에 모아 두었습니다. 적격성 판단 흐름도부터 보호자 안내문까지 그대로 내려받아 쓸 수 있습니다.</p>
+          <p class="case__go">
+            <a href="https://zenith5021-hue.github.io/home/" target="_blank" rel="noopener">수업 아카이브</a>
+            <a href="https://zenith5021-hue.github.io/home/forms.html" target="_blank" rel="noopener">대안평가 서식</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 장면 11 — 학급문화와 협력 ===== -->
+<section class="scene scene--tight band" id="culture">
+  <div class="wrap">
+    <div class="rv" style="margin-bottom:36px">
+      <span class="tag">학급문화와 협력</span>
+      <p class="line">함께 지내는 교실</p>
+      <p class="sub">특별한 프로그램이 아니라 매일의 학급 운영 안에서 만들어집니다. 그리고 그 일도 혼자 하지 않습니다.</p>
+    </div>
+    <div class="duo">
+      <div class="rv">
+        <div class="shot"><img src="assets/class-hands.webp" alt="함께 만드는 손"></div>
+        <p class="h3">우리 반 만들기</p>
+        <ul class="tipl">
+          <li>학급 규칙은 <b>짧게, 눈에 보이게, 일관되게</b></li>
+          <li><b>1인 1역할에서 빼지 않기</b> — 맡겨 보니 오히려 스스로 하려 하더라는 이야기가 많습니다</li>
+          <li>또래 도우미는 <b>한 아이에게 몰아주지 않기</b></li>
+          <li>대신 해 주지 말고 스스로 할 수 있도록 돕기</li>
+        </ul>
+        <div class="days">
+          <span><b>3.21</b>다운증후군의 날</span>
+          <span><b>4.2</b>자폐증 인식의 날</span>
+          <span><b>4.20</b>장애인의 날</span>
+          <span><b>9.23</b>국제 수어의 날</span>
+        </div>
+        <div class="intro">
+          <p class="intro__t">반 아이들에게 어떻게 소개할까</p>
+          <p class="intro__s">3월에 가장 많이 막히는 지점입니다. 정답은 없지만 순서는 있습니다.</p>
+          <ol>
+            <li><b>혼자 정하지 않습니다.</b> 무엇을 어디까지 알릴지는 본인과 보호자의 뜻이 먼저입니다. 특수교사를 통해 확인하고 시작하세요.</li>
+            <li>알리기로 했다면 <b>진단명이 아니라 생활의 말로</b> 합니다. “무엇을 어려워하고, 무엇을 도와주면 되는지”까지 말해야 아이들이 행동할 수 있습니다.</li>
+            <li>알리지 않기로 했더라도 <b>아이들은 알아챕니다.</b> “왜 저렇게 해요?”라는 질문이 나왔을 때 할 말을 미리 하나 정해 두세요. 그 자리에서 당황하는 것이 가장 나쁩니다.</li>
+            <li><b>따로 자리를 만들기보다 학급 규칙 안에서</b> 풀어 갑니다. 특별한 설명 시간은 한 번이지만, 규칙은 1년 내내 작동합니다.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="rv">
+        <p class="h3">받을 수 있는 도움</p>
+        <ul class="tipl">
+          <li><b>특수교사</b> — 가장 가깝고 빠른 상담 상대</li>
+          <li><b>특수교육지원인력</b> — 학교에 배치된 경우</li>
+          <li><b>통합교육지원단</b> — 학급 운영 컨설팅</li>
+          <li><b>긍정적 행동지원</b> — 행동 중재가 필요할 때</li>
+          <li><b>순회교육 · 인권지원단</b> — 사안에 따라 신청</li>
+        </ul>
+        <p class="p" style="margin-top:18px">대부분 교육지원청 특수교육지원센터에 공문으로 신청합니다. 절차는 특수교사나 업무담당자에게 물어보면 됩니다.</p>
+        <div class="gw">
+          <div class="gw__h"><b>우리 지역 문의처</b><i>강원</i></div>
+          <p class="gw__note">어디에 물어야 할지 모를 때는 소속 교육지원청 특수교육지원센터부터 찾으면 됩니다.</p>
+
+          <p class="gw__lb">도 단위 기관</p>
+          <div class="gw__list gw__wide">
+            <a href="tel:0332585391"><span>강원특별자치도교육청 문화체육특수교육과 특수교육팀</span><em>033-258-5391</em></a>
+            <a href="tel:0338184212"><span>강원특별자치도교육청특수교육원 춘천본원</span><em>033-818-4212</em></a>
+            <a href="tel:0338134310"><span>강원특별자치도교육청특수교육원 원주분원</span><em>033-813-4310</em></a>
+            <a href="tel:0338234410"><span>강원특별자치도교육청특수교육원 강릉분원</span><em>033-823-4410</em></a>
+          </div>
+
+          <p class="gw__lb">지역 특수교육지원센터</p>
+          <div class="gw__list gw__cols">
+            <a href="tel:0332591690"><span>춘천</span><em>033-259-1690</em></a>
+            <a href="tel:0337605641"><span>원주</span><em>033-760-5641</em></a>
+            <a href="tel:0336401298"><span>강릉</span><em>033-640-1298</em></a>
+            <a href="tel:0336396040"><span>속초·양양</span><em>033-639-6040</em></a>
+            <a href="tel:0335303035"><span>동해</span><em>033-530-3035</em></a>
+            <a href="tel:0335815593"><span>태백</span><em>033-581-5593</em></a>
+            <a href="tel:0335705126"><span>삼척</span><em>033-570-5126</em></a>
+            <a href="tel:0334301135"><span>홍천</span><em>033-430-1135</em></a>
+            <a href="tel:0333400331"><span>횡성</span><em>033-340-0331</em></a>
+            <a href="tel:0333701161"><span>영월</span><em>033-370-1161</em></a>
+            <a href="tel:0333301797"><span>평창</span><em>033-330-1797</em></a>
+            <a href="tel:0335608132"><span>정선</span><em>033-560-8132</em></a>
+            <a href="tel:0334501062"><span>철원</span><em>033-450-1062</em></a>
+            <a href="tel:0334401583"><span>화천</span><em>033-440-1583</em></a>
+            <a href="tel:0334801466"><span>양구</span><em>033-480-1466</em></a>
+            <a href="tel:0334601083"><span>인제</span><em>033-460-1083</em></a>
+            <a href="tel:0336819620"><span>고성</span><em>033-681-9620</em></a>
+          </div>
+
+          <p class="gw__lb">장애영역별 지원센터</p>
+          <div class="gw__list gw__wide">
+            <a href="tel:0332533011"><span>시각장애 특수교육지원센터 (강원명진학교)</span><em>033-253-3011</em></a>
+            <a href="tel:0332564651"><span>청각장애 특수교육지원센터 (춘천계성학교)</span><em>033-256-4651</em></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 장면 12 — 닫기 ===== -->
+<section class="close">
+  <div>
+    <p class="line rv">그래서<br>혼자 하지 않습니다</p>
+    <p class="sub rv">처음 맡은 3월에 알아야 할 것은 여기까지입니다.<br>그다음은 옆 교실 선생님과 함께 정하면 됩니다.</p>
+    <p class="stamp rv">첫걸음은 옆 교실에서</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <div>
+      <b>통합학급 교사 첫걸음</b>
+      <p>양구초등학교 통합교육 연구학교 L.I.N.K.<br>강원특별자치도교육청 지정</p>
+    </div>
+    <div>
+      <a href="https://zenith5021-hue.github.io/home/" target="_blank" rel="noopener">L.I.N.K. 수업 아카이브</a>
+      <a href="https://zenith5021-hue.github.io/home/forms.html" target="_blank" rel="noopener">대안평가 서식</a>
+      <a href="https://www.law.go.kr/법령/장애인등에대한특수교육법" target="_blank" rel="noopener">장애인 등에 대한 특수교육법</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+
+const nav = document.getElementById('nav');
+const hero = document.getElementById('hero');
+const frame = document.getElementById('heroFrame');
+const heroText = document.getElementById('heroText');
+const heroClaim = document.getElementById('heroClaim');
+const shade = document.getElementById('heroShade');
+const clamp = (v,a,b) => Math.min(b, Math.max(a, v));
+
+/* ── 히어로: 스크롤이 영상을 끌고 간다 (복도 → 교실) ── */
+const vid = document.getElementById('heroVid');
+const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let vidDur = 8.0, vidReady = false, wantT = 0;
+
+function markReady(){
+  if (vidReady) return;
+  vidDur = (vid.duration && isFinite(vid.duration)) ? vid.duration : 8.0;
+  vidReady = true;
+  seek();
+}
+/* 스크립트가 늦게 걸려 신호를 놓쳤을 수 있으니 현재 상태를 먼저 본다 */
+if (vid.readyState >= 1) markReady();
+vid.addEventListener('loadedmetadata', markReady);
+vid.addEventListener('loadeddata', markReady);
+
+function seek(){
+  if (!vidReady) return;
+  if (calm) { vid.currentTime = vidDur - 0.05; return; }
+  if (Math.abs(vid.currentTime - wantT) < 0.015) return;
+  try { vid.currentTime = wantT; } catch(e){}
+}
+
+function heroScroll(){
+  const h = hero.offsetHeight - window.innerHeight;
+  const p = clamp(window.scrollY / h, 0, 1);        // 0~1
+
+  // 0.00~0.72  스크롤에 맞춰 복도를 지나 교실로 들어간다
+  wantT = clamp(p / 0.72, 0, 1) * (vidDur - 0.05);
+  seek();
+
+  // 0.00~0.72  바랜 화면으로 시작해 들어갈수록 색이 돌아온다
+  const g = clamp(p / 0.72, 0, 1);
+  const ease = g * g * (3 - 2 * g);
+  vid.style.filter =
+    `saturate(${(0.45 + ease * 0.63).toFixed(3)}) ` +
+    `brightness(${(0.92 + ease * 0.12).toFixed(3)}) ` +
+    `contrast(${(1.04 - ease * 0.04).toFixed(3)})`;
+  vid.style.transform = `scale(${(1 + ease * 0.04).toFixed(4)})`;
+  shade.style.opacity = (1 - ease * 0.70).toFixed(3);
+
+  // 0.00~0.26  첫 문장이 사라진다
+  heroText.style.opacity = String(1 - clamp(p/0.26, 0, 1));
+  heroText.style.transform = `translateY(${-clamp(p/0.26,0,1)*26}px)`;
+
+  // 0.42~0.64  교실에 들어선 뒤 주장이 떠오르고, 0.80부터 사라진다
+  const inC  = clamp((p-0.42)/0.22, 0, 1);
+  const outC = clamp((p-0.80)/0.16, 0, 1);
+  heroClaim.style.opacity = String(inC * (1-outC));
+  heroClaim.style.transform = `translateY(${(1-inC)*22}px)`;
+
+  // 0.74~1.00  영상이 카드로 오므라든다
+  const s = clamp((p-0.74)/0.26, 0, 1);
+  frame.style.left = frame.style.right = (s * 7) + 'vw';
+  frame.style.top = frame.style.bottom = (s * 6) + 'vh';
+  frame.style.borderRadius = (s * 30) + 'px';
+
+  // 꽉 찬 동안에는 메뉴를 숨긴다
+  nav.classList.toggle('hide', p < 0.86);
+}
+
+/* ── 1년: 스크롤에 따라 네 시기가 넘어간다 ── */
+const year = document.getElementById('year');
+const steps = [...document.querySelectorAll('#steps li')];
+const shots = [...document.querySelectorAll('#yearMedia img')];
+function yearScroll(){
+  const top = year.offsetTop;
+  const h = year.offsetHeight - window.innerHeight;
+  const p = clamp((window.scrollY - top) / h, 0, 0.999);
+  const i = Math.floor(p * steps.length);
+  steps.forEach((el,k) => el.classList.toggle('on', k === i));
+  shots.forEach((el,k) => el.classList.toggle('on', k === i));
+}
+
+let ticking = false;
+function onScroll(){
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => { heroScroll(); yearScroll(); ticking = false; });
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+window.addEventListener('resize', onScroll);
+onScroll();
+
+/* ── 등장 ── */
+const rv = document.querySelectorAll('.rv');
+const io = new IntersectionObserver(es => {
+  es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+rv.forEach(el => io.observe(el));
+window.addEventListener('scroll', () => {
+  rv.forEach(el => { if (!el.classList.contains('in') && el.getBoundingClientRect().bottom < 0) el.classList.add('in'); });
+}, {passive:true});
+</script>
+</body>
+</html>
